@@ -34,9 +34,9 @@ defmodule RealDealApiWeb.AccountController do
     end
   end
 
-  def show(conn, %{"id" => _id}) do
-    # account = Accounts.get_account!(id)
-    render(conn, "show.json", account: conn.assigns.account)
+  def show(conn, %{"id" => id}) do
+    account = Accounts.get_account!(id)
+    render(conn, "show.json", account: account)
   end
 
   def update(conn, %{"id" => id, "account" => account_params}) do
