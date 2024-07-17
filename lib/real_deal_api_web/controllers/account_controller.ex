@@ -6,6 +6,19 @@ defmodule RealDealApiWeb.AccountController do
 
   action_fallback RealDealApiWeb.FallbackController
 
+  plug :is_account_authorized when action in [:update, :delete]
+
+  defp is_account_authorized(conn, _opts) do
+    IO.inspect(conn, label: "Here", limit: :infinity)
+    %{params: %{"account" => params}} = conn
+    account = Accounts.get_account!(params["id"])
+
+    case account.id === conn.assigns.account.id do
+      true -> conn
+      _ -> raise ErrorResponse.Forbidden
+    end
+  end
+
   def index(conn, _params) do
     accounts = Accounts.list_accounts()
     render(conn, "index.json", accounts: accounts)
@@ -39,8 +52,9 @@ defmodule RealDealApiWeb.AccountController do
     render(conn, "show.json", account: account)
   end
 
-  def update(conn, %{"id" => id, "account" => account_params}) do
-    account = Accounts.get_account!(id)
+  def update(conn, %{"account" => account_params}) do
+    IO.inspect("Update")
+    account = Accounts.get_account!(account_params["id"])
 
     with {:ok, %Account{} = account} <- Accounts.update_account(account, account_params) do
       render(conn, "show.json", account: account)
